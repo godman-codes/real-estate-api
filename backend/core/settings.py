@@ -96,7 +96,7 @@ DATABASES = {
         }
 }
 
-DATABASE_ROUTERS = ['users.router.AuthRouter']
+DATABASE_ROUTERS = ['users.router.AuthRouter', 'listings.router.ListingRouter']
 
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
