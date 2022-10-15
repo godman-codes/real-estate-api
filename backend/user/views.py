@@ -19,7 +19,7 @@ class RegisterUserView(APIView):
             re_password = data['re_password']
             is_realtor = data['is_realtor']
 
-            if is_realtor == 'True' or 'true':
+            if is_realtor == 'True' or is_realtor == 'true':
                 is_realtor = True
             else:
                 is_realtor = False
@@ -33,8 +33,7 @@ class RegisterUserView(APIView):
                             status=status.HTTP_201_CREATED)
                         else:
                             User.objects.create_realtor(name=name, email=email, password=password)
-                            return Response({'success': 'Realtor account created successfully'}, status=status.HTTP_201_CREATED)
-                        
+                            return Response({'success': 'Realtor account created successfully'}, status=status.HTTP_201_CREATED)    
                     else:
                         return Response({'error': 'User with this email already exists'}, 
                                         status=status.HTTP_400_BAD_REQUEST)

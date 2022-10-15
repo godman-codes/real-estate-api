@@ -42,8 +42,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 
     'rest_framework',
-    'users',
-    'listings',
+    'user',
+    'listing',
 ]
 
 MIDDLEWARE = [
@@ -84,23 +84,24 @@ DATABASES = {
     'default': {},
     'users': {
         'ENGINE': 'django.db.backends.postgresql',  # added postgresql support
-        'NAME': 'listingz_user',  # added postgresql support NAME
+        'NAME': 'listingz_users',  # added postgresql support NAME
         'USER': config('USER'),
         'PASSWORD': config('SQL_PASSWORD'),
     },
     'listings': {
         'ENGINE': 'django.db.backends.postgresql',  # added postgresql support
-        'NAME': 'listingz_listing',  # added postgresql support NAME
+        'NAME': 'listingz_listings',  # added postgresql support NAME
         'USER': config('USER'),
         'PASSWORD': config('SQL_PASSWORD'),
         }
 }
 
-DATABASE_ROUTERS = ['users.router.AuthRouter', 'listings.router.ListingRouter']
+DATABASE_ROUTERS = ['user.router.AuthRouter', 'listing.router.ListingRouter']
 
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.IsAuthenticated',
+        "rest_framework.authentication.SessionAuthentication"
     ],
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework_simplejwt.authentication.JWTAuthentication',
@@ -163,4 +164,4 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-AUTH_USER_MODEL = 'users.UserAccount'
+AUTH_USER_MODEL = 'user.UserAccount'

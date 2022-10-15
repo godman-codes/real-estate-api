@@ -1,4 +1,3 @@
-from enum import unique
 from django.db import models
 from django.utils.timezone import now
 
@@ -25,7 +24,7 @@ class Listing(models.Model):
     description = models.TextField()
     price = models.IntegerField()
     bedrooms = models.IntegerField()
-    bathrooms = models.DecimalField(max_digits=2, decimal_places=2)
+    bathrooms = models.DecimalField(max_digits=3, decimal_places=1)
     sale_type = models.CharField(max_length=10, choices=SaleType.choices, default=SaleType.FOR_SALE)
     home_type = models.CharField(max_length=10, choices=HomeType.choices, default=HomeType.HOUSE)
     main_photo = models.ImageField(upload_to='listings/')
