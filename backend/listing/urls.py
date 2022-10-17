@@ -1,5 +1,9 @@
 from django.urls import path
-from .views import ListingCreateAPIView
+from .views import ListingCreateAPIView, ListingUpdateAPIView
+
+
+
 urlpatterns = [
-    path('create/', ListingCreateAPIView.as_view())
+    path('', ListingCreateAPIView.as_view()),
+    path('<str:slug>/update/', ListingUpdateAPIView.as_view())
 ]

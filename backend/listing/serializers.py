@@ -1,10 +1,11 @@
 from rest_framework import serializers
 from .models import Listing
+from .validators import validate_slug
 
 class ListingSerializers(serializers.ModelSerializer):
     realtor = serializers.EmailField(read_only=True)
     title = serializers.CharField(max_length=255, required=True)
-    slug = serializers.SlugField(required=True)
+    slug = serializers.SlugField(required=True, validators=[validate_slug])
     address = serializers.CharField(max_length=255, required=True)
     city = serializers.CharField(max_length=255, required=True)
     state = serializers.CharField(max_length=255, required=True)
@@ -45,3 +46,7 @@ class ListingSerializers(serializers.ModelSerializer):
             'is_published',
             'date_created',
         ]
+
+
+class ListUpdateSerializer(ListingSerializers):
+    slug = serializers.SlugField(required=True)
