@@ -1,9 +1,12 @@
+from multiprocessing import managers
 from rest_framework import generics, status
 from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from .models import Listing
 from .serializers import ListUpdateSerializer, ListingSerializers
 from .permissions import IsRealtorPermission
+from rest_framework.views import APIView
+from django.contrib.postgres.search import SearchVector
 
 class ListingCreateAPIView(generics.CreateAPIView):
     '''
@@ -46,16 +49,80 @@ class ListingCreateAPIView(generics.CreateAPIView):
         except:
             return Response(
                 {'error': 'something went wrong while getting listings'},
-                status=status.HTTP_400_BAD_REQUEST
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
                 )
 
-class ListingUpdateAPIView(generics.UpdateAPIView):
+class ListingUpdateAPIView(generics.UpdateAPIView, generics.DestroyAPIView):
     permission_classes = [IsAuthenticated, IsRealtorPermission]
     queryset = Listing.objects.all()
     serializer_class = ListUpdateSerializer
     lookup_field = 'slug'
 
+    def get_queryset(self):
+        queryset = Listing.objects.filter(realtor=self.request.user)
+        return queryset
+
     def perform_update(self, serializer):
-        print(self.request.user)
+        # print(self.request.user.email)
         # print(serializer.data)
+        # print(self.queryset)
         serializer.save(user=self.request.user)
+
+    def patch(self, request, *args, **kwargs):
+        return self.partial_update(request, *args, **kwargs)
+
+class ListingDestroyAPIView(generics.UpdateAPIView, generics.DestroyAPIView):
+    permission_classes = [IsAuthenticated, IsRealtorPermission]
+    queryset = Listing.objects.all()
+    serializer_class = ListUpdateSerializer
+    lookup_field = 'slug'
+
+    def get_queryset(self):
+        queryset = Listing.objects.filter(realtor=self.request.user)
+        return queryset
+
+    def perform_destroy(self, instance):
+        return super().perform_destroy(instance)
+
+
+class SearchListingView(APIView):
+    permission_classes = [AllowAny]
+
+    def get(self, request, *args, **kwargs):
+        try:
+            search = request.query_params.get('search') or None
+            # listing = Listing.objects.filter(
+            #     title__search=search,
+            #     description=search,
+            #     is_published=True
+            #     )
+            if not Listing.objects.annotate(
+                search=SearchVector('title', 'description')
+                ).filter(
+                    search=search,
+                    is_published=True
+                    ):
+                    return Response(
+                        {'error': 'No listing for you'},
+                        status=status.HTTP_404_NOT_FOUND
+                    )
+            
+            listing = Listing.objects.annotate(
+            search=SearchVector('title', 'description')
+            ).filter(
+                search=search,
+                is_published=True
+                )
+            listing = ListingSerializers(listing, many=True)
+            
+            return Response(
+                {'listing': listing.data},
+                status=status.HTTP_200_OK
+                )
+        except:
+            return Response(
+                {'error': 'something went wrong during search'},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+                )
+
+        

@@ -1,7 +1,17 @@
 from rest_framework import serializers
 from .models import Listing
-from .validators import validate_slug
+from .validators import validate_slug, validate_house_type, validate_sale_type
 
+SALE_CHOICES = (
+    ('FOR_RENT', 'For Rent'),
+    ('FOR_SALE', 'For Sale'),
+)
+
+HOUSE_CHOICES = (
+    ('HOUSE', 'House'),
+    ('CONDO', 'Condo'),
+    ('TOWNHOUSE', 'Townhouse'),
+)
 class ListingSerializers(serializers.ModelSerializer):
     realtor = serializers.EmailField(read_only=True)
     title = serializers.CharField(max_length=255, required=True)
@@ -14,8 +24,8 @@ class ListingSerializers(serializers.ModelSerializer):
     price = serializers.IntegerField( required=True)
     bedrooms = serializers.IntegerField( required=True)
     bathrooms = serializers.DecimalField(max_digits=3, decimal_places=1, required=True)
-    sale_type = serializers.CharField(max_length=10, required=True)
-    home_type = serializers.CharField(max_length=10, required=True)
+    sale_type = serializers.ChoiceField(choices=SALE_CHOICES, required=True, validators=[validate_sale_type])
+    home_type = serializers.ChoiceField(choices=HOUSE_CHOICES, required=True, validators=[validate_house_type])
     main_photo = serializers.ImageField( required=True)
     photo_1 = serializers.ImageField(required=True)
     photo_2 = serializers.ImageField(required=True)
@@ -26,6 +36,7 @@ class ListingSerializers(serializers.ModelSerializer):
     class Meta:
         model = Listing
         fields = [
+            'id',
             'realtor',
             'title',
             'slug',
