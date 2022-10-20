@@ -16,7 +16,7 @@ def validate_sale_type(value):
         raise serializers.ValidationError('Sale type must be either FOR_SALE or FOR_RENT')
 
 
-def validate_house_type(value):
+def validate_home_type(value):
     if value == 'HOUSE':
         return 'House'
     elif value == 'CONDO':
